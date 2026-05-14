@@ -7,6 +7,7 @@ import { useRealtimeEvents } from '../hooks/useRealtimeEvents';
 import { BeforeAfter } from '../components/dashboard/BeforeAfter';
 import { CurrentReport } from '../components/dashboard/CurrentReport';
 import { DownloadReports } from '../components/dashboard/DownloadReports';
+import { FirebaseScanLookup } from '../components/dashboard/FirebaseScanLookup';
 import { InsightPanel } from '../components/dashboard/InsightPanel';
 import { OrganStatus } from '../components/dashboard/OrganStatus';
 import { PredictionModule } from '../components/dashboard/PredictionModule';
@@ -104,6 +105,10 @@ export function Dashboard({ patient }) {
           <section className="grid gap-5 py-6 lg:grid-cols-[0.92fr_1.08fr]">
             <QuickActions />
             <DownloadReports />
+          </section>
+
+          <section className="py-2">
+            <FirebaseScanLookup />
           </section>
         </main>
       )}
