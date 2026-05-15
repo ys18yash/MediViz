@@ -1,10 +1,9 @@
 import { Activity, HeartPulse, Stethoscope, Wind } from 'lucide-react';
-import { organStatus } from '../../data/mockPatient';
 import { GlassCard } from '../ui/GlassCard';
 
 const organIcons = [Wind, HeartPulse, Stethoscope, Activity];
 
-export function OrganStatus() {
+export function OrganStatus({ organStatus = [] }) {
   return (
     <GlassCard>
       <h2 className="mb-5 text-2xl font-semibold text-slate-950">Body area status</h2>

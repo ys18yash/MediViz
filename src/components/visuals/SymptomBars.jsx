@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
-import { symptoms } from '../../data/mockPatient';
 
-export function SymptomBars() {
+export function SymptomBars({ symptoms = [] }) {
   return (
     <div className="space-y-4">
       {symptoms.map((item, index) => (

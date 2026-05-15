@@ -1,9 +1,8 @@
 import { Download, FileText, LockKeyhole } from 'lucide-react';
-import { reports } from '../../data/mockPatient';
 import { Button } from '../ui/Button';
 import { GlassCard } from '../ui/GlassCard';
 
-export function DownloadReports() {
+export function DownloadReports({ reports = [] }) {
   return (
     <GlassCard>
       <div className="mb-5 flex items-center justify-between gap-4">

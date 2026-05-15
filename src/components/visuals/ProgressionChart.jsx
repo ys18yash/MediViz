@@ -8,13 +8,12 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { progressionData } from '../../data/mockPatient';
 
-export function ProgressionChart() {
+export function ProgressionChart({ data }) {
   return (
     <div className="h-[280px] w-full">
       <ResponsiveContainer>
-        <AreaChart data={progressionData} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
+        <AreaChart data={data} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id="severityFill" x1="0" x2="0" y1="0" y2="1">
               <stop offset="0%" stopColor="#60a5fa" stopOpacity={0.35} />

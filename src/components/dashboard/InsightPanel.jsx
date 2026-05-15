@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronDown, CircleCheck, HeartHandshake, Info, Lightbulb } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GlassCard } from '../ui/GlassCard';
@@ -10,7 +10,11 @@ const icons = {
 };
 
 export function InsightPanel({ report }) {
-  const [open, setOpen] = useState(report.findings[0].label);
+  const [open, setOpen] = useState(report.findings[0]?.label || '');
+
+  useEffect(() => {
+    setOpen(report.findings[0]?.label || '');
+  }, [report]);
 
   return (
     <GlassCard>

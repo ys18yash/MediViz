@@ -6,7 +6,7 @@ import { GlassCard } from '../ui/GlassCard';
 
 export function AuthPanel({ mode = 'id', onAuthenticated }) {
   const [activeMode, setActiveMode] = useState(mode);
-  const [patientId, setPatientId] = useState('MV-2049-ALYA');
+  const [patientId, setPatientId] = useState('987654');
   const [loading, setLoading] = useState(false);
 
   async function submit(event) {

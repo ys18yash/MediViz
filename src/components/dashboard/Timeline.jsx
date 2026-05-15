@@ -1,8 +1,7 @@
 import { CheckCircle2, Circle, TrendingDown } from 'lucide-react';
-import { timeline } from '../../data/mockPatient';
 import { GlassCard } from '../ui/GlassCard';
 
-export function Timeline() {
+export function Timeline({ timeline = [] }) {
   return (
     <GlassCard>
       <h2 className="mb-6 text-2xl font-semibold text-slate-950">Previous reports timeline</h2>

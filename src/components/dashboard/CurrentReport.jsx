@@ -1,9 +1,18 @@
-import { ArrowDownRight, CalendarCheck, Download, PlayCircle } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, CalendarCheck, Download, PlayCircle } from 'lucide-react';
 import { SeverityGauge } from '../visuals/SeverityGauge';
 import { Button } from '../ui/Button';
 import { GlassCard } from '../ui/GlassCard';
 
 export function CurrentReport({ report, realtime, onStartAnalysis }) {
+  const isWorsened = report.change > 0;
+  const isImproved = report.change < 0;
+  const ChangeIcon = isWorsened ? ArrowUpRight : ArrowDownRight;
+  const changeText = isWorsened
+    ? 'Higher than previous report'
+    : isImproved
+      ? 'Improved from last report'
+      : 'No major change vs previous';
+
   return (
     <GlassCard className="grid gap-6 lg:grid-cols-[0.94fr_1.06fr]">
       <div className="overflow-hidden rounded-[22px] bg-slate-100">
@@ -23,9 +32,9 @@ export function CurrentReport({ report, realtime, onStartAnalysis }) {
           <div className="rounded-2xl bg-blue-50 p-4">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">Change</p>
             <p className="mt-2 flex items-center gap-1 text-2xl font-semibold text-slate-950">
-              <ArrowDownRight className="text-green-600" size={22} /> {Math.abs(report.change)} pts
+              <ChangeIcon className={isWorsened ? 'text-rose-600' : 'text-green-600'} size={22} /> {Math.abs(report.change)} pts
             </p>
-            <p className="mt-1 text-xs text-slate-500">Improved from last report</p>
+            <p className="mt-1 text-xs text-slate-500">{changeText}</p>
           </div>
           <div className="rounded-2xl bg-teal-50 p-4">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-teal-700">AI confidence</p>

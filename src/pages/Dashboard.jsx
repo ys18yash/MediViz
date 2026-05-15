@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Download } from 'lucide-react';
-import { reports as fallbackReports } from '../data/mockPatient';
-import { fetchPatientReports, startReportAnalysis } from '../services/api';
+import { mapReportsToView } from '../engine/visualizationMapper';
+import { getReportHistory } from '../engine/reportStore';
+import { startReportAnalysis } from '../services/api';
 import { useRealtimeEvents } from '../hooks/useRealtimeEvents';
 import { BeforeAfter } from '../components/dashboard/BeforeAfter';
 import { CurrentReport } from '../components/dashboard/CurrentReport';
@@ -13,6 +14,7 @@ import { OrganStatus } from '../components/dashboard/OrganStatus';
 import { PredictionModule } from '../components/dashboard/PredictionModule';
 import { QuickActions } from '../components/dashboard/QuickActions';
 import { RealtimeStatus } from '../components/dashboard/RealtimeStatus';
+import { ReportUploadPanel } from '../components/dashboard/ReportUploadPanel';
 import { SkeletonLoader } from '../components/dashboard/SkeletonLoader';
 import { Timeline } from '../components/dashboard/Timeline';
 import { TopBar } from '../components/dashboard/TopBar';
@@ -22,17 +24,16 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { SectionHeader } from '../components/ui/SectionHeader';
 
 export function Dashboard({ patient }) {
-  const [reports, setReports] = useState([]);
+  const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [analysisPulse, setAnalysisPulse] = useState(false);
   const realtime = useRealtimeEvents(true);
 
   useEffect(() => {
-    fetchPatientReports().then((items) => {
-      setReports(items);
-      setLoading(false);
-    });
-  }, []);
+    const items = getReportHistory(patient.id);
+    setHistory(items);
+    setLoading(false);
+  }, [patient.id]);
 
   async function handleStartAnalysis() {
     setAnalysisPulse(true);
@@ -40,7 +41,8 @@ export function Dashboard({ patient }) {
     window.setTimeout(() => setAnalysisPulse(false), 1700);
   }
 
-  const latest = reports[0] || fallbackReports[0];
+  const viewModel = mapReportsToView(history);
+  const latest = viewModel.latestReportCard;
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#ffffff_44%,#f3f9ff_100%)] text-slate-900">
@@ -57,7 +59,9 @@ export function Dashboard({ patient }) {
             <div>
               <p className="text-sm font-semibold text-blue-700">Good afternoon, {patient.name}</p>
               <h1 className="mt-2 max-w-3xl text-4xl font-semibold tracking-normal text-slate-950 sm:text-5xl">
-                Your latest report is ready, and the trend looks reassuring.
+                {viewModel.hasReports
+                  ? 'Your latest report is ready, and your timeline is updated.'
+                  : 'Upload your first report to start your health timeline.'}
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
                 This view simplifies scan results into visual signals, plain-language insights,
@@ -67,7 +71,20 @@ export function Dashboard({ patient }) {
             <RealtimeStatus event={analysisPulse ? { progress: 58, message: 'Analysis started on local backend' } : realtime} />
           </motion.div>
 
-          <CurrentReport report={latest} realtime={realtime} onStartAnalysis={handleStartAnalysis} />
+          <section className="py-1">
+            <ReportUploadPanel patientId={patient.id} onUploaded={setHistory} />
+          </section>
+
+          {viewModel.hasReports ? (
+            <CurrentReport report={latest} realtime={realtime} onStartAnalysis={handleStartAnalysis} />
+          ) : (
+            <GlassCard className="py-10 text-center">
+              <h2 className="text-2xl font-semibold text-slate-950">No report history yet</h2>
+              <p className="mt-2 text-sm text-slate-600">
+                Upload your first report to create a baseline and activate comparison tracking.
+              </p>
+            </GlassCard>
+          )}
 
           <section className="py-8">
             <SectionHeader
@@ -81,14 +98,14 @@ export function Dashboard({ patient }) {
               }
             />
             <div className="grid gap-5 lg:grid-cols-[0.98fr_1.02fr]">
-              <OrganStatus />
-              <BeforeAfter report={latest} />
+              <OrganStatus organStatus={viewModel.organStatus} />
+              <BeforeAfter report={latest || { preview: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=1400&q=80' }} />
             </div>
           </section>
 
           <section className="grid gap-5 py-2 lg:grid-cols-[0.9fr_1.1fr]">
-            <InsightPanel report={latest} />
-            <PredictionModule />
+            <InsightPanel report={latest || { findings: [] }} />
+            <PredictionModule progressionData={viewModel.progressionData} prediction={viewModel.prediction} />
           </section>
 
           <section className="grid gap-5 py-6 lg:grid-cols-[0.95fr_1.05fr]">
@@ -97,14 +114,14 @@ export function Dashboard({ patient }) {
               <p className="mb-6 text-sm leading-6 text-slate-600">
                 Current symptoms are shown against your previous report so change is easier to see.
               </p>
-              <SymptomBars />
+              <SymptomBars symptoms={viewModel.symptoms} />
             </GlassCard>
-            <Timeline />
+            <Timeline timeline={viewModel.timeline} />
           </section>
 
           <section className="grid gap-5 py-6 lg:grid-cols-[0.92fr_1.08fr]">
             <QuickActions />
-            <DownloadReports />
+            <DownloadReports reports={viewModel.downloadReports} />
           </section>
 
           <section className="py-2">
